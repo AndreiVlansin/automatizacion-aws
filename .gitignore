@@ -1,0 +1,13 @@
+# Ignorar el estado de Terraform
+terraform.tfstate
+terraform.tfstate.backup
+
+# Ignorar archivos de configuración sensibles
+terraform.tfvars
+terraform.tfvars.json
+
+# Ignorar el directorio de Terraform con los plugins
+.terraform/
+
+# Ignorar archivos de plan de Terraform
+*.tfplan
