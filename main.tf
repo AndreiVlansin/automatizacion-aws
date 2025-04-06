@@ -7,23 +7,23 @@ terraform {
   }
 }
 
-variable "AWS_ACCESS_KEY" {
+variable "AWS_ACCESS_KEY_ID" {
   description = "AWS Access Key"
   type = string
+  sensitive = true
 }
 
 variable "AWS_SECRET_ACCESS_KEY" {
   description = "AWS Secret Access Key"
   type = string
+  sensitive = true
 }
 
 
 
 provider "aws" {
   region = "eu-west-3"
-  # Aqui poner la key de acceso BORRAR
-  access_key = var.AWS_ACCESS_KEY
-  # Aqui poner la key secreta BORRAR
+  access_key = var.AWS_ACCESS_KEY_ID
   secret_key = var.AWS_SECRET_ACCESS_KEY
 }
 
