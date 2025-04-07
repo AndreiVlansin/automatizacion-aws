@@ -96,4 +96,4 @@ resource "aws_network_interface" "ani-srv_cont" {
 
 #dsada
 #yamete
-#cafe
+#cafe si
