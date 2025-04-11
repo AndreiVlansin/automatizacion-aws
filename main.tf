@@ -93,5 +93,3 @@ resource "aws_network_interface" "ani-srv_cont" {
     "sub"  = "sub2"
   }
 }
-
-#cacota
