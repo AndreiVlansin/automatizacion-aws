@@ -12,3 +12,4 @@ terraform.tfvars.json
 # Ignorar archivos de plan de Terraform
 *.tfplan
 porMeter.*
+
