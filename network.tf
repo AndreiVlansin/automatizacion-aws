@@ -81,7 +81,7 @@ resource "aws_subnet" "sub-pub1" {
 resource "aws_network_interface" "ani-tpot" {
   subnet_id = aws_subnet.sub-pub1.id
   private_ips = ["10.0.1.2"]
-  # security_groups = [ aws_security_group.ssh_sg.id ]
+  security_groups = [ aws_security_group.ssh_sg_pub-1.id]
 
   tags = {
     "Name" = "ani-tpot"
@@ -93,17 +93,18 @@ resource "aws_network_interface" "ani-tpot" {
 
 # Tarjeta de red Web
 
-resource "aws_network_interface" "ani-web" {
-  subnet_id = aws_subnet.sub-pub0.id
-  private_ips = ["192.168.2.5"]
-  #security_groups = [ aws_security_group.ssh_sg.id ]
-  tags = {
-    "Name" = "ani-web"
-    "vpc" = "priv-0"
-    "sub" = "sub1"
-  }
+# resource "aws_network_interface" "ani-web" {
+#   subnet_id = aws_subnet.sub-pub0.id
+#   private_ips = ["192.168.2.5"]
+#   security_groups = [ aws_security_group.ssh_sg_pub-0.id,
+#                       aws_security_group.http-sg.id]
+#   tags = {
+#     "Name" = "ani-web"
+#     "vpc" = "priv-0"
+#     "sub" = "sub1"
+#   }
   
-}
+# }
 
 
 # Tarjeta de red DC0
@@ -111,7 +112,7 @@ resource "aws_network_interface" "ani-web" {
 resource "aws_network_interface" "ani-dc0" {
   subnet_id = aws_subnet.sub-priv0.id
   private_ips = ["192.168.1.5"]
-  security_groups = [ aws_security_group.ssh_sg.id ] # Aplicacion del grupo de seguridad para permitir ssh
+  security_groups = [ aws_security_group.ssh_sg_priv-0.id ] # Aplicacion del grupo de seguridad para permitir ssh
 
   tags = {
     "Name" = "ani-dc0"
@@ -126,7 +127,7 @@ resource "aws_network_interface" "ani-dc0" {
 resource "aws_network_interface" "ani-srv_cont" {
   subnet_id = aws_subnet.sub-priv0.id
   private_ips = ["192.168.1.150"]
-  security_groups = [ aws_security_group.ssh_sg.id ] # Aplicacion del grupo de seguridad para permitir ssh
+  security_groups = [ aws_security_group.ssh_sg_priv-0.id ] # Aplicacion del grupo de seguridad para permitir ssh
 
   tags = {
     "Name" = "ani-srv_cont"
@@ -213,8 +214,6 @@ resource "aws_route" "pub02pub1" {
 
 # pub-0 ----> internet
 
-# Crear una tabla de rutas
-
 resource "aws_route" "pub02internet" {
   route_table_id = aws_route_table.pub-0_rt.id
   destination_cidr_block = "0.0.0.0/0"
@@ -246,11 +245,11 @@ resource "aws_route_table_association" "sub-priv0_assoc" {
 }
 
 
-#resource "aws_route_table_association" "sub-pub0_assoc" {
-#  subnet_id = aws_subnet.sub-pub0.id
-#  route_table_id = aws_route_table.pub-0_rt.id
-#  
-#}
+resource "aws_route_table_association" "sub-pub0_assoc" {
+ subnet_id = aws_subnet.sub-pub0.id
+ route_table_id = aws_route_table.pub-0_rt.id
+ 
+}
 
 
 
@@ -266,3 +265,4 @@ resource "aws_route_table_association" "sub-bas_assoc" {
   route_table_id = aws_route_table.pub-0_rt.id
    
 }
+

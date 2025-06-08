@@ -72,25 +72,25 @@ resource "aws_instance" "DC0" {
 
 
 
-## Web
+# ## Web
 
-resource "aws_instance" "Web" {
-  ami = "ami-0160e8d70ebc43ee1" # Ubuntu 24.04 LTS
-  instance_type = "t2.micro" 
+# resource "aws_instance" "Web" {
+#   ami = "ami-0160e8d70ebc43ee1" # Ubuntu 24.04 LTS
+#   instance_type = "t2.micro" 
 
-  network_interface {
-    network_interface_id = aws_network_interface.ani-web.id
-    device_index         = 0
-  }
+#   network_interface {
+#     network_interface_id = aws_network_interface.ani-web.id
+#     device_index         = 0
+#   }
 
-  tags = {
-    "Name" = "Web"
-    "vpc"  = "priv-0"
-  }
+#   tags = {
+#     "Name" = "Web"
+#     "vpc"  = "priv-0"
+#   }
 
-  key_name = "gestionSSH"
+#   key_name = "gestionSSH"
 
-}
+# }
 
 
 

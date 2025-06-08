@@ -50,7 +50,7 @@ resource "aws_security_group" "bastion_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["79.117.60.223/32"] ## Cambiar para que sea actualizada
+    cidr_blocks = ["79.116.83.60/32"] ## Cambiar para que sea actualizada
   }
 
   egress {
