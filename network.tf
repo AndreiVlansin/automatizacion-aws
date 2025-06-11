@@ -81,7 +81,9 @@ resource "aws_subnet" "sub-pub1" {
 resource "aws_network_interface" "ani-tpot" {
   subnet_id = aws_subnet.sub-pub1.id
   private_ips = ["10.0.1.2"]
-  security_groups = [ aws_security_group.ssh_sg_pub-1.id]
+  security_groups = [ aws_security_group.ssh_sg_pub-1.id,
+                      aws_security_group.tpot_dashboard-sg.id
+  ]
 
   tags = {
     "Name" = "ani-tpot"
@@ -91,28 +93,13 @@ resource "aws_network_interface" "ani-tpot" {
 }
 
 
-# Tarjeta de red Web
-
-# resource "aws_network_interface" "ani-web" {
-#   subnet_id = aws_subnet.sub-pub0.id
-#   private_ips = ["192.168.2.5"]
-#   security_groups = [ aws_security_group.ssh_sg_pub-0.id,
-#                       aws_security_group.http-sg.id]
-#   tags = {
-#     "Name" = "ani-web"
-#     "vpc" = "priv-0"
-#     "sub" = "sub1"
-#   }
-  
-# }
-
-
 # Tarjeta de red DC0
 
 resource "aws_network_interface" "ani-dc0" {
   subnet_id = aws_subnet.sub-priv0.id
   private_ips = ["192.168.1.5"]
-  security_groups = [ aws_security_group.ssh_sg_priv-0.id ] # Aplicacion del grupo de seguridad para permitir ssh
+  security_groups = [ aws_security_group.ssh_sg_priv-0.id,
+                      aws_security_group.winrm.id ] # Aplicacion del grupo de seguridad para permitir ssh
 
   tags = {
     "Name" = "ani-dc0"
@@ -229,7 +216,12 @@ resource "aws_route" "pub12pub0" {
   vpc_peering_connection_id = aws_vpc_peering_connection.pub2pub.id
 }
 
-
+# pub-1 -----> internet
+resource "aws_route" "pub12internet" {
+  route_table_id = aws_route_table.pub-1_rt.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.tpot_igw.id
+}
 
 
 
@@ -266,3 +258,17 @@ resource "aws_route_table_association" "sub-bas_assoc" {
    
 }
 
+resource "aws_eip" "tipoti" {
+}
+
+resource "aws_eip_association" "tpot_assoc" {
+    instance_id = aws_instance.Tpot.id
+    allocation_id = aws_eip.tipoti.id
+}
+
+resource "aws_internet_gateway" "tpot_igw" {
+  vpc_id = aws_vpc.pub-1.id
+  tags = {
+    Name = "tpot-igw"
+  }
+}

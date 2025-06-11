@@ -50,7 +50,7 @@ resource "aws_security_group" "bastion_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["79.116.83.60/32"] ## Cambiar para que sea actualizada
+    cidr_blocks = ["79.116.83.60/32","79.117.217.142/32"] ## Cambiar para que sea actualizada
   }
 
   egress {
@@ -90,7 +90,15 @@ resource "null_resource" "copy_private_key" {
   depends_on = [ null_resource.wait_ssh]
     provisioner "local-exec" {
       command = "scp -i ..\\terraform\\keys\\gestionSSH.pem -o StrictHostKeyChecking=no ..\\terraform\\keys\\gestionSSH.pem ubuntu@${aws_eip.basti.public_ip}:~/.ssh/id_ansible"
-      
+    }
+  
+}
+
+
+resource "null_resource" "copy_files" {
+  depends_on = [ null_resource.wait_ssh]
+    provisioner "local-exec" {
+      command = "scp -i ..\\terraform\\keys\\gestionSSH.pem -r -o StrictHostKeyChecking=no archivosPermanentes\\* ubuntu@${aws_eip.basti.public_ip}:~/archivosPermanentes"
     }
   
 }

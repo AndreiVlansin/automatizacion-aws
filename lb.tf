@@ -48,6 +48,13 @@ resource "aws_launch_template" "web_lt" {
     instance_type = "t2.micro"
     
 
+    tag_specifications {
+        resource_type = "instance"
+        tags = {
+            Name = "web-instance"
+        }
+    }
+
     network_interfaces {
       associate_public_ip_address = false
       security_groups = [aws_security_group.http_lb-sg.id, aws_security_group.ssh_sg_pub-0.id]
