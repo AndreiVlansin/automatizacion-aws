@@ -33,7 +33,7 @@ provider "aws" {
 ## srv_cont
 resource "aws_instance" "srv_cont" {
   ami           = "ami-0160e8d70ebc43ee1"
-  instance_type = "t2.micro" # Cambiar a t3.micro cuando hagamos la prueba real
+  instance_type = "t2.micro" 
   network_interface {
     network_interface_id = aws_network_interface.ani-srv_cont.id
     device_index         = 0 # Orden de prioridad de la tarjeta de red (Por si tiene mas de una)
@@ -50,8 +50,8 @@ resource "aws_instance" "srv_cont" {
 ## DC0
 
 resource "aws_instance" "DC0" {
-  ami = "ami-050351bdd0093f00e" # Windows server 2019. Cambiar a 2025
-  instance_type = "t3.medium" # Cambiar a t3.small
+  ami = "ami-050351bdd0093f00e"
+  instance_type = "t3.medium"
 
   network_interface {
     network_interface_id = aws_network_interface.ani-dc0.id
@@ -62,20 +62,20 @@ resource "aws_instance" "DC0" {
   
   user_data = <<-EOF
     <powershell>
-    # Configuración básica de WinRM para Ansible
+    # Activar winrm para ansible
     Enable-PSRemoting -Force -SkipNetworkProfileCheck
     winrm quickconfig -q
     winrm set winrm/config/service '@{AllowUnencrypted="true"}'
     winrm set winrm/config/service/auth '@{Basic="true"}'
     Restart-Service WinRM
 
-    # Crear usuario para Ansible (opcional)
+    # Crea usuario ansible_user
     $username = "ansible_user"
     $password = "P@ssw0rd123!" | ConvertTo-SecureString -AsPlainText -Force
     New-LocalUser -Name $username -Password $password
     Add-LocalGroupMember -Group "Administrators" -Member $username
 
-    # Añadir excepción de firewall
+    # Permite winrm para firewall
     netsh advfirewall firewall add rule name="WinRM-HTTP" dir=in action=allow protocol=TCP localport=5985
   </powershell>
   EOF
@@ -97,7 +97,7 @@ resource "aws_instance" "DC0" {
 
 resource "aws_instance" "Tpot" {
   ami = "ami-0160e8d70ebc43ee1" # ubuntu
-  instance_type = "t3a.xlarge" # Cambiar a t3a.large
+  instance_type = "t3a.xlarge"
 
   network_interface {
     network_interface_id = aws_network_interface.ani-tpot.id
@@ -105,14 +105,17 @@ resource "aws_instance" "Tpot" {
     
   }
 
-  key_name = "gestionSSH"
   
+
+  key_name = "gestionSSH"
   root_block_device {
     volume_size = 50
     volume_type = "gp3"
     encrypted   = false
   }
-  
+ 
+    
+
 
   tags = {
     "Name" = "Tpot"
@@ -122,7 +125,10 @@ resource "aws_instance" "Tpot" {
 }
 
 
+
 ## Bucket S3 backups
+
+
 
 resource "aws_s3_bucket" "backups" {
   tags = {
@@ -134,29 +140,29 @@ resource "aws_s3_bucket" "backups" {
 
 ## Aurora
 
-# resource "aws_rds_cluster" "auroraDBCluster" {
-#   cluster_identifier   = "aurora-cluster"
-#   engine               = "aurora-mysql"
-#   skip_final_snapshot  = true
-#   master_username = "admin"
-#   master_password = "$$$P4k1t0Ch0k0l4t3r0123###"
+resource "aws_rds_cluster" "auroraDBCluster" {
+  cluster_identifier   = "aurora-cluster"
+  engine               = "aurora-mysql"
+  skip_final_snapshot  = true
+  master_username = "admin"
+  master_password = "$$$P4k1t0Ch0k0l4t3r0123###"
 
-#   serverlessv2_scaling_configuration {
-#     min_capacity = 0.5  # En ACUs (Aurora Capacity Units)
-#     max_capacity = 2.0
-#   }
+  serverlessv2_scaling_configuration {
+    min_capacity = 0.5 
+    max_capacity = 2.0
+  }
 
-#     # Esto activa Serverless v2
+    # Esto activa Serverless v2
   
-# }
+}
 
-# resource "aws_rds_cluster_instance" "auroraDB" {
-#   identifier         = "aurora-instance"
-#   cluster_identifier = aws_rds_cluster.auroraDBCluster.id
-#   instance_class     = "db.serverless" #Si da errores cambiar a t3.medium
-#   engine             = "aurora-mysql"
-#   publicly_accessible     = false
-# }
+resource "aws_rds_cluster_instance" "auroraDB" {
+  identifier         = "aurora-instance"
+  cluster_identifier = aws_rds_cluster.auroraDBCluster.id
+  instance_class     = "db.serverless" 
+  engine             = "aurora-mysql"
+  publicly_accessible     = false
+}
 
 
 

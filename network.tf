@@ -114,7 +114,8 @@ resource "aws_network_interface" "ani-dc0" {
 resource "aws_network_interface" "ani-srv_cont" {
   subnet_id = aws_subnet.sub-priv0.id
   private_ips = ["192.168.1.150"]
-  security_groups = [ aws_security_group.ssh_sg_priv-0.id ] # Aplicacion del grupo de seguridad para permitir ssh
+  security_groups = [ aws_security_group.ssh_sg_priv-0.id,
+                      aws_security_group.kuma_dashboard-sg.id ] # Aplicacion del grupo de seguridad para permitir ssh
 
   tags = {
     "Name" = "ani-srv_cont"

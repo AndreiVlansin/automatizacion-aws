@@ -3,7 +3,6 @@ resource "aws_lb" "nlb" {
     internal = false
     load_balancer_type = "network"
 
-    #security_groups = [aws_security_group.http_internet-sg.id]
     subnet_mapping {
       subnet_id = aws_subnet.sub-pub0.id
       allocation_id = aws_eip.balanci.id

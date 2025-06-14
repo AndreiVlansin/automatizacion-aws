@@ -50,7 +50,7 @@ resource "aws_security_group" "bastion_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["79.116.83.60/32","79.117.217.142/32"] ## Cambiar para que sea actualizada
+    cidr_blocks = ["79.116.83.60/32","79.117.217.136/32"] ## Cambiar para que sea actualizada
   }
 
   egress {
@@ -74,7 +74,7 @@ resource "null_resource" "wait_ssh" {
   depends_on = [aws_instance.bastion]
 
   provisioner "local-exec" {
-    command = "Start-sleep 20"
+    command = "Start-sleep 40"
 
     interpreter = [ "Powershell", "-Command" ]
     
@@ -99,22 +99,44 @@ resource "null_resource" "copy_files" {
   depends_on = [ null_resource.wait_ssh]
     provisioner "local-exec" {
       command = "scp -i ..\\terraform\\keys\\gestionSSH.pem -r -o StrictHostKeyChecking=no archivosPermanentes\\* ubuntu@${aws_eip.basti.public_ip}:~/archivosPermanentes"
+      
     }
   
 }
 
 
+resource "null_resource" "exec_ansible" {
+  depends_on = [ null_resource.aprovisionamiento_post_ssh,
+                 aws_instance.srv_cont ]
+
+    provisioner "remote-exec" {
+      inline = ["bash /home/ubuntu/archivosPermanentes/main_ansible.sh"]      
+    }
+
+    connection {
+        type = "ssh"
+        user = "ubuntu"
+        private_key = file("../terraform/keys/gestionSSH.pem")
+        host = aws_eip.basti.public_ip
+      }
+  
+}
+
+
+
 resource "null_resource" "aprovisionamiento_post_ssh" {
   
-  depends_on = [ null_resource.copy_private_key ]
+  depends_on = [ null_resource.copy_private_key,
+                 null_resource.copy_files ]
   
   provisioner "remote-exec" {
       inline = [
         "sudo chmod 600 ~/.ssh/id_ansible",
         "sudo apt update",
-        "sudo apt install -y ansible"
+        "sudo apt install -y ansible",
+        "scp -i ~/.ssh/id_ansible -r -o StrictHostKeyChecking=no ~/archivosPermanentes/cont/* ubuntu@${aws_instance.srv_cont.private_ip}:~/",
         ]
-      
+
       connection {
         type = "ssh"
         user = "ubuntu"

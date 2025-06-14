@@ -10,7 +10,6 @@ resource "aws_security_group" "ssh_sg_priv-0" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    #security_groups = [aws_security_group.bastion_sg.id]
     cidr_blocks      = ["192.168.2.150/32"]
   }
 
@@ -33,7 +32,6 @@ resource "aws_security_group" "ssh_sg_pub-0" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    #security_groups = [aws_security_group.bastion_sg.id]
     cidr_blocks      = ["192.168.2.150/32"]
   }
 
@@ -57,7 +55,6 @@ resource "aws_security_group" "ssh_sg_pub-1" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    #security_groups = [aws_security_group.bastion_sg.id]
     cidr_blocks      = ["192.168.2.150/32"]
   }
 
@@ -129,7 +126,7 @@ resource "aws_security_group" "allow_ping" {
 
   ingress {
     description      = "Allow ICMP Echo Request"
-    from_port        = 8            # Tipo de ICMP: Echo Request
+    from_port        = 8            
     to_port          = -1
     protocol         = "icmp"
     cidr_blocks      = ["0.0.0.0/0"]
@@ -138,20 +135,55 @@ resource "aws_security_group" "allow_ping" {
   egress {
     from_port        = 0
     to_port          = 0
-    protocol         = "-1"         # Permitir todo el tráfico saliente
+    protocol         = "-1"         
     cidr_blocks      = ["0.0.0.0/0"]
   }
 }
 
 resource "aws_security_group" "tpot_dashboard-sg" {
   name        = "tpot_dashboard-sg"
-  description = "T-Pot dashboard access"
+  description = "T-Pot dashboard y ssh access"
   vpc_id      = aws_vpc.pub-1.id
 
 
   ingress {
     from_port = 64297
     to_port = 64297
+    protocol = "TCP"
+    cidr_blocks = ["192.168.2.150/32"]
+  }
+  ingress {
+    from_port   = 64295
+    to_port     = 64295
+    protocol    = "tcp"
+    cidr_blocks = ["192.168.2.150/32"]  
+  }
+
+  ingress {
+    from_port   = 10
+    to_port     = 6400
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+}
+
+resource "aws_security_group" "kuma_dashboard-sg" {
+  name        = "kuma_dashboard-sg"
+  description = "kuma dashboard access"
+  vpc_id      = aws_vpc.priv-0.id
+
+
+  ingress {
+    from_port = 3001
+    to_port = 3001
     protocol = "TCP"
     cidr_blocks = ["192.168.2.150/32"]
   }
@@ -165,6 +197,8 @@ resource "aws_security_group" "tpot_dashboard-sg" {
   
 }
 
+
+
 resource "aws_security_group" "winrm" {
   name        = "winrm-sg"
   description = "Allow WinRM traffic"
@@ -174,7 +208,7 @@ resource "aws_security_group" "winrm" {
     from_port   = 5985
     to_port     = 5986
     protocol    = "tcp"
-    cidr_blocks = ["192.168.2.150/32"]  # Solo desde tu VPC
+    cidr_blocks = ["192.168.2.150/32"]  # desde el bastion
   }
 
   egress {
