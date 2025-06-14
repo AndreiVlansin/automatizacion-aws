@@ -1,0 +1,9 @@
+- name: Clonar repositorio Git
+  hosts: target_host
+  vars:
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+  tasks:
+    - name: Clonar repositorio tpot
+      shell: git clone https://github.com/telekom-security/tpotce.git
+      args:
+        chdir: /home/ubuntu

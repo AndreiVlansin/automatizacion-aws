@@ -1,0 +1,42 @@
+- name: Instalación offline completa
+  hosts: target_host
+  become: yes
+  gather_facts: yes  # verifica si los paquetes se instalaron
+
+  tasks:
+    # instala apt-offline
+    - name: Instalar apt-offline
+      command: dpkg -i apt-offline_1.8.5-1_all.deb
+      register: apt_offline_install
+      ignore_errors: yes
+
+    - name: Reparar dependencias
+      apt:
+        update_cache: no
+        fix_broken: yes
+      when: apt_offline_install is failed
+
+    - name: Extraer paquetes .deb
+      unarchive:
+        src: docker_full.tar
+        dest: /home/ubuntu
+        remote_src: yes
+        
+    - name: Instalar todos los .deb encontrados
+      shell: dpkg -i /home/ubuntu/*.deb
+      args:
+        chdir: /home/ubuntu
+      register: install_result
+      failed_when: "'dpkg: error' in install_result.stderr"
+      changed_when: "'Setting up' in install_result.stdout"
+
+    # Carga la imagen de uptime kuma
+    - name: Cargar imagen Docker
+      ansible.builtin.command:
+        cmd: docker load -i uptime-kuma.tar
+
+
+    # Inicia el conteneder
+    - name: Ejecutar contenedor
+      ansible.builtin.command:
+        cmd: docker run -d -p 3001:3001 --name uptime-kuma -v uptime-kuma:/app/data --restart always louislam/uptime-kuma
